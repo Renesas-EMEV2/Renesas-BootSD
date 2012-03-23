@@ -1,0 +1,73 @@
+
+  23 Mar 2012
+
+I've adapted the original procedure for the "1220" (Android 2.3) firmware version, from:
+
+  http://www.slatedroid.com/topic/19640-objective-01-boot-os-from-sdcard-completed/page__view__findpost__p__201698
+
+Find attached the new file:
+
+Attached File  bootsd_1220.tar.gz (79.13K)
+Number of downloads: 0
+
+Procedure as follows:
+
+- On your Linux host PC (tested on my Ubuntu 11.10 64-bit)
+
+1) Extract from the original "1220" update package into some temporary dir these files
+
+android-fs4.tar.gz
+uImage4
+
+
+2) Expand the attached file into the same temp dir. A new bootsd/ subdir is created.
+3) Insert a 2Gb SD card on your PC (through a USB card reader, or whatever).
+NOTE 1 - The card content is going to be erased completely.
+NOTE 2 - The script should be modified for cards smaller than 2Gb.
+4) Note what new device is created for the SD card. It's "/dev/sdd" in my case.
+5) Create the bootable SD card with:
+
+cd bootsd
+chmod +x create_bootsd.sh
+sudo ./create_bootsd.sh /dev/sdd
+
+
+6) Wait for completion of all steps (takes around a 30 secs, or so)
+
+- On your Rena tablet (tested on mine "second version"):
+
+1) insert the bootable SD card into tablet
+2) Boot with Vol+&Power (as if you were updating firmware)
+3) Be patient! It took two-three minutes to get to the Android home screen first time.
+
+To start the original NAND firmware, just shutdown and restart with the Power button as usual.
+
+-------
+
+Known Issues
+
+1) Overall device response is slower than that with internal NAND.
+That's also a clue about what the final performance comes from...
+
+2) Touchscreen and keys don't work... This is just a starting point!
+Use a USB mouse to interact.
+The original author of the procedure also patched the uboot4 and put into the internal NAND, but befpore moifying that I'd like to understand better what he has patched...
+Hello tosan, are you still around?
+
+-------
+
+Technical details
+
+If you wish to discover how our bootloader works, have a look at the README-Renesas in https://github.com/f...sEV2-bootloader
+
+The uboot-sd.bin has been hex-edited to patch the boot commands, so to start the root file system to the SD card partition:
+
+bootcmd=run ext3cmd
+ext3_root=/dev/mmcblk1p3
+cfg_ddr=mem=129M@0x40000000 mem=256M@0x50000000
+ext3cmd=setenv bootargs root=$(ext3_root) noinitrd init=/init console=ttyS0,115200n8n SELINUX_INIT=no $(cfg_ddr) rw video=qfb: ip=none rootfstype=ext3 rootwait;bootm 40007fc0
+
+
+
+The init.rc has been modified to mount the SD card partitions, in place of the NAND ones
+The vold.conf and vold.fstab content has been commented out as well, to remove the use of an external SD card (which is of course absent). 
