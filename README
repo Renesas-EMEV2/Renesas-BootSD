@@ -32,7 +32,7 @@ NOTES
 - The SD card content is going to be erased completely.
 - Cards larger than 2Gb aren't accepted by Rena bootloader. 
 - The "part_sd.sh" script should be modified for cards smaller than 2Gb.
-- "part_sd.sh" is required onlu once, to create the partitoning scheme on the SD card:
+- "part_sd.sh" is required only once, to create the partitoning scheme on the SD card:
 
 # p1 500MB	: 	boot files
 # p2 256KB	:	uboot environment
@@ -67,12 +67,13 @@ Technical details
 
 If you wish to discover how our bootloader works, have a look at the README-Renesas in https://github.com/f...sEV2-bootloader
 
-The uboot-sd.bin has been hex-edited to patch the boot commands, so to start the root file system to the SD card partition:
+The uboot-sd.bin has been hex-edited to patch the boot commands, so to start the root file system to the SD card partition, I.e.
 
 bootcmd=run ext3cmd
 ext3_root=/dev/mmcblk1p3
 cfg_ddr=mem=129M@0x40000000 mem=256M@0x50000000
 ext3cmd=setenv bootargs root=$(ext3_root) noinitrd init=/init console=ttyS0,115200n8n SELINUX_INIT=no $(cfg_ddr) rw video=qfb: ip=none rootfstype=ext3 rootwait;bootm 40007fc0
 
-The init.rc has been modified to mount the SD card partitions, in place of the NAND ones
+The init.rc has been modified to mount the SD card partitions, in place of the NAND ones.
+
 The vold.conf and vold.fstab content has been commented out as well, to remove the use of an external SD card (which is of course absent). 
