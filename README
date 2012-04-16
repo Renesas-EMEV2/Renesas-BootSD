@@ -1,44 +1,54 @@
 
-  23 Mar 2012
+How to build a bootable SD card for the Renesas tablet
 
-I've adapted the original procedure for the "1220" (Android 2.3) firmware version, from:
+-------
 
-  http://www.slatedroid.com/topic/19640-objective-01-boot-os-from-sdcard-completed/page__view__findpost__p__201698
+1) On your Linux host PC (tested on my Ubuntu 11.10 64-bit)
 
-Find attached the new file:
+1.1) Place somewhere these files (out of a stock firmware, or a new build):
 
-Attached File  bootsd_1220.tar.gz (79.13K)
-Number of downloads: 0
+ android-fs4.tar.gz
+ uImage4
 
-Procedure as follows:
+E.g. copy them in ./tmp (refer to this path later)
 
-- On your Linux host PC (tested on my Ubuntu 11.10 64-bit)
+1.2) Modify ./init.rc inside android-fs4.tar.gz, so that it'll mount the partitions we're going to create on the SD card, i.e.:
 
-1) Extract from the original "1220" update package into some temporary dir these files
+...
+on fs
+   mount ext3 /dev/block/mmcblk1p6 /mnt/sdcard nosuid nodev
+   mount ext3 /dev/block/mmcblk1p5 /data nosuid nodev
+...
 
-android-fs4.tar.gz
-uImage4
+1.2) Insert a 2Gb SD card on your PC (through a USB card reader, or whatever).
+1.3) Note what new device is created for the SD card. It's "/dev/sdd" in my case.
+1.4) Create the bootable SD card executing:
+
+sudo ./part_sd.sh /dev/sdd
+sudo ./create_bootsd.sh /dev/sdd ./tmp
+
+NOTES 
+
+- The SD card content is going to be erased completely.
+- Cards larger than 2Gb aren't accepted by Rena bootloader. 
+- The "part_sd.sh" script should be modified for cards smaller than 2Gb.
+- "part_sd.sh" is required onlu once, to create the partitoning scheme on the SD card:
+
+# p1 500MB	: 	boot files
+# p2 256KB	:	uboot environment
+# p3 400MB	:	android-fs
+# p4		:	EXTENDED
+# p5 750MB	:	data-fs / cache
+# p6 the rest	:	nand-fs
+
+As you have the SD partioned like that, you can run and re-run ./create_bootsd.sh multiple times, to update the SD content.
 
 
-2) Expand the attached file into the same temp dir. A new bootsd/ subdir is created.
-3) Insert a 2Gb SD card on your PC (through a USB card reader, or whatever).
-NOTE 1 - The card content is going to be erased completely.
-NOTE 2 - The script should be modified for cards smaller than 2Gb.
-4) Note what new device is created for the SD card. It's "/dev/sdd" in my case.
-5) Create the bootable SD card with:
+2) On your Renesas tablet (tested on mine "second version"):
 
-cd bootsd
-chmod +x create_bootsd.sh
-sudo ./create_bootsd.sh /dev/sdd
-
-
-6) Wait for completion of all steps (takes around a 30 secs, or so)
-
-- On your Rena tablet (tested on mine "second version"):
-
-1) insert the bootable SD card into tablet
-2) Boot with Vol+&Power (as if you were updating firmware)
-3) Be patient! It took two-three minutes to get to the Android home screen first time.
+2.1) Insert the bootable SD card into tablet.
+2.2) Boot with Vol+&Power (as if you were updating firmware; but this is NOT doing that).
+2.3) Be patient! It takes couple minutes to get to the Android home screen. First time even longer.
 
 To start the original NAND firmware, just shutdown and restart with the Power button as usual.
 
@@ -66,8 +76,6 @@ bootcmd=run ext3cmd
 ext3_root=/dev/mmcblk1p3
 cfg_ddr=mem=129M@0x40000000 mem=256M@0x50000000
 ext3cmd=setenv bootargs root=$(ext3_root) noinitrd init=/init console=ttyS0,115200n8n SELINUX_INIT=no $(cfg_ddr) rw video=qfb: ip=none rootfstype=ext3 rootwait;bootm 40007fc0
-
-
 
 The init.rc has been modified to mount the SD card partitions, in place of the NAND ones
 The vold.conf and vold.fstab content has been commented out as well, to remove the use of an external SD card (which is of course absent). 
