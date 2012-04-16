@@ -20,9 +20,9 @@ on fs
    mount ext3 /dev/block/mmcblk1p5 /data nosuid nodev
 ...
 
-1.2) Insert a 2Gb SD card on your PC (through a USB card reader, or whatever).
-1.3) Note what new device is created for the SD card. It's "/dev/sdd" in my case.
-1.4) Create the bootable SD card executing:
+1.3) Insert a 2Gb SD card on your PC (through a USB card reader, or whatever).
+1.4) Note what new device is created for the SD card. It's "/dev/sdd" in my case.
+1.5) Create the bootable SD card executing:
 
 sudo ./part_sd.sh /dev/sdd
 sudo ./create_bootsd.sh /dev/sdd ./tmp
@@ -59,10 +59,7 @@ Known Issues
 1) Overall device response is slower than that with internal NAND.
 That's also a clue about what the final performance comes from...
 
-2) Touchscreen and keys don't work... This is just a starting point!
-Use a USB mouse to interact.
-The original author of the procedure also patched the uboot4 and put into the internal NAND, but befpore moifying that I'd like to understand better what he has patched...
-Hello tosan, are you still around?
+2) On second boot from SD, seems like not working... To be investigated about.
 
 -------
 
