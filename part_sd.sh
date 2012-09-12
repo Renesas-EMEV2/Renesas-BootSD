@@ -40,7 +40,7 @@ n
 p
 1
 
-+500M
++256M
 n
 p
 2
@@ -50,19 +50,17 @@ n
 p
 3
 
-+400M
++512M
 n
 e
 
 
 n
 
-+750M
++512M
 n
 
 
-a
-1
 t
 1
 6
@@ -73,7 +71,7 @@ sleep 3
 sync;sync;sync
 
 echo "(2) Creating file systems ... will take a while!"
-mkfs.msdos       -n bootfs4    ${SDCARD}1 >/dev/null 2>&1
+mkfs.msdos -F 32 -n bootfs4    ${SDCARD}1 >/dev/null 2>&1
 mke2fs -t ext3   -L androidfs4 ${SDCARD}3 >/dev/null 2>&1
 mke2fs -t ext3   -L datafs4    ${SDCARD}5 >/dev/null 2>&1
 mke2fs -t ext3   -L nandfs4    ${SDCARD}6 >/dev/null 2>&1
